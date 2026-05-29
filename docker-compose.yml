@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: creator
+      POSTGRES_PASSWORD: creator_pass
+      POSTGRES_DB: creator_workflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U creator -d creator_workflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://creator:creator_pass@db:5432/creator_workflow
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: gpt-5.4-mini
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+      LOG_DIR: /app/logs
+    volumes:
+      - ./logs:/app/logs   # logs persist on host even after docker compose down
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
