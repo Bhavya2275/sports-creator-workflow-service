@@ -10,25 +10,25 @@ A backend service that manages creator onboarding workflows for a sports platfor
 ┌────────────────────────────────────────────────────────┐
 │                     FastAPI App                        │
 │                                                        │
-│  ┌─────────────┐   ┌──────────────────────────────┐   │
-│  │  /creators  │   │  /qualify (async background) │   │
-│  └──────┬──────┘   └───────────────┬──────────────┘   │
+│  ┌─────────────┐   ┌──────────────────────────────┐    │
+│  │  /creators  │   │  /qualify (async background) │    │
+│  └──────┬──────┘   └───────────────┬──────────────┘    │
 │         │                          │                   │
-│  ┌──────▼──────────────────────────▼──────────────┐   │
-│  │               Services Layer                   │   │
-│  │  CreatorService | WorkflowService | AIService  │   │
-│  └──────────────────────┬─────────────────────────┘   │
+│  ┌──────▼──────────────────────────▼──────────────┐    │
+│  │               Services Layer                   │    │
+│  │  CreatorService | WorkflowService | AIService  │    │
+│  └──────────────────────┬─────────────────────────┘    │
 │                          │                             │
-│  ┌───────────────────────▼─────────────────────────┐  │
-│  │           Workflow State Machine                │  │
-│  │  DISCOVERED→QUALIFIED→OUTREACH_PENDING→         │  │
-│  │  CONTACTED→INTERESTED→ONBOARDED/REJECTED        │  │
-│  └───────────────────────┬─────────────────────────┘  │
+│  ┌───────────────────────▼─────────────────────────┐   │
+│  │           Workflow State Machine                │   │
+│  │  DISCOVERED→QUALIFIED→OUTREACH_PENDING→         │   │ 
+│  │  CONTACTED→INTERESTED→ONBOARDED/REJECTED        │   │
+│  └───────────────────────┬─────────────────────────┘   │
 │                          │                             │
-│  ┌───────────────────────▼─────────────────────────┐  │
-│  │          SQLAlchemy Async ORM (PostgreSQL)      │  │
-│  │   creators | workflow_audit | qualification_jobs│  │
-│  └─────────────────────────────────────────────────┘  │
+│  ┌───────────────────────▼─────────────────────────┐   │
+│  │          SQLAlchemy Async ORM (PostgreSQL)      │   │
+│  │   creators | workflow_audit | qualification_jobs│   │
+│  └─────────────────────────────────────────────────┘   │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -81,10 +81,14 @@ creator-workflow-service/
 │   │   └── transitions.py       # Allowed transitions map + validator
 │   ├── tasks/
 │   │   └── qualification_task.py # Background task runner
+│   ├── prompt/
+│   │   └── qualification_prompt.py
 │   └── core/
 │       ├── exceptions.py         # Typed HTTP exceptions
 │       ├── logging.py            # Structured logging (structlog)
 │       └── dependencies.py      # FastAPI DI (DB session)
+├── logs/
+│   ├── app.log                   # Logs
 ├── tests/
 │   ├── conftest.py               # Test DB, ASGI client fixtures
 │   ├── test_creators.py          # Creator API integration tests
